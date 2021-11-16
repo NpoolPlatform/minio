@@ -85,7 +85,21 @@ pipeline {
         sh 'kubectl apply -f 01-ingress.yaml'
       }
     }
+
+    stage('Config apollo') {
+      when {
+        expression { CONFIG_TARGET == 'true' }
+      }
+      steps {
+        sh 'rm .apollo-base-config -rf'
+        sh 'git clone https://github.com/NpoolPlatform/apollo-base-config.git .apollo-base-config'
+        sh 'cd .apollo-base-config; ./apollo-base-config.sh $APP_ID $TARGET_ENV minio-npool-top'
+        sh 'cd .apollo-base-config; ./apollo-item-config.sh $APP_ID $TARGET_ENV minio-npool-top accesskey root'
+        sh 'cd .apollo-base-config; ./apollo-item-config.sh $APP_ID $TARGET_ENV minio-npool-top secretkey 12345679'
+      }
+    }
   }
+
   post('Report') {
     fixed {
       script {
