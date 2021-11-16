@@ -7,7 +7,7 @@ pipeline {
     GOPROXY = 'https://goproxy.cn,direct'
   }
   stages {
-    stage('Clone consul cluster') {
+    stage('Clone minio cluster') {
       steps {
         git(url: scm.userRemoteConfigs[0].url, branch: '$BRANCH_NAME', changelog: true, credentialsId: 'KK-github-key', poll: true)
       }
@@ -31,6 +31,22 @@ pipeline {
     stage('Switch to current cluster') {
       steps {
         sh 'cd /etc/kubeasz; ./ezctl checkout $TARGET_ENV'
+      }
+    }
+
+    stage('Build minio image') {
+      when {
+        expression { BUILD_TARGET == 'true' }
+      }
+      steps {
+        sh 'mkdir -p .docker-tmp; cp /usr/bin/consul .docker-tmp'
+        sh(returnStdout: true, script: '''
+          images=`docker images | grep entropypool | grep minio | awk '{ print $3 }'`
+          for image in $images; do
+            docker rmi $image
+          done
+        '''.stripIndent())
+        sh 'docker build -t entropypool/minio:RELEASE.2021-02-14T04-01-33Z .'
       }
     }
 
