@@ -6,4 +6,4 @@ if [ ! $? -eq 0 ]; then
   exit 1
 fi
 
-/usr/bin/docker-entrypoint.sh $@
+/usr/bin/docker-entrypoint-inner.sh $@
