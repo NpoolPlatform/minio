@@ -72,7 +72,7 @@ pipeline {
       }
       steps {
         sh 'helm repo add minio https://helm.min.io/'
-        sh 'helm install minio -f values.service.yaml --namespace kube-system  ./minio'
+        sh 'helm upgrade minio --namespace kube-system -f values.service.yaml ./minio || helm install minio --namespace kube-system -f values.service.yaml ./minio'
       }
     }
 
