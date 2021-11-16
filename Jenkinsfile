@@ -50,6 +50,22 @@ pipeline {
       }
     }
 
+    stage('Release minio image') {
+      when {
+        expression { RELEASE_TARGET == 'true' }
+      }
+      steps {
+        sh(returnStdout: true, script: '''
+          while true; do
+            docker push entropypool/minio:RELEASE.2021-02-14T04-01-33Z
+            if [ $? -eq 0 ]; then
+              break
+            fi
+          done
+        '''.stripIndent())
+      }
+    }
+
     stage('Deploy minio') {
       when {
         expression { DEPLOY_TARGET == 'true' }
