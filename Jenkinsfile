@@ -40,7 +40,7 @@ pipeline {
       }
       steps {
         sh 'helm repo add minio https://helm.min.io/'
-        sh 'helm install minio --namespace kube-system --set accessKey=root,secretKey=12345679 minio/minio'
+        sh 'helm install minio -f values.service.yaml --namespace kube-system  ./minio'
       }
     }
 
@@ -49,7 +49,7 @@ pipeline {
         expression { DEPLOY_TARGET == 'true' }
       }
       steps {
-        sh 'sed -i "s/consul.internal-devops.development.npool.top/consul.internal-devops.$TARGET_ENV.npool.top/g" 01-ingress.yaml'
+        sh 'sed -i "s/minio.internal-devops.development.npool.top/minio.internal-devops.$TARGET_ENV.npool.top/g" 01-ingress.yaml'
         sh 'kubectl apply -f 01-ingress.yaml'
       }
     }
