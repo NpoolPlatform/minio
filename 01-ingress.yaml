@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: minio-ingress
+  namespace: kube-system
+  annotations:
+    k8s.kuboard.cn/displayName: minio
+    k8s.kuboard.cn/workload: minio
+    nginx.org/websocket-services: "minio"
+    nginx.com/sticky-cookie-services: "serviceName=minio srv_id expires=1h path=/"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    kubernetes.io/ingress.class: "devops-vpn-nginx-internal"
+spec:
+  rules:
+  - host: minio.internal-devops.testing.npool.top
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: minio
+          servicePort: 9000
