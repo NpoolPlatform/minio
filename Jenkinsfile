@@ -21,7 +21,7 @@ pipeline {
             if (!fileExists("$HOME/.helm/.helm-src")) {
               sh 'git clone https://github.com/helm/helm.git $HOME/.helm/.helm-src'
             }
-            sh 'cd $HOME/.helm/.helm-src; make; cp bin/helm /usr/bin/helm'
+            sh 'cd $HOME/.helm/.helm-src; git checkout release-3.7; make; cp bin/helm /usr/bin/helm'
             sh 'helm version'
           }
         }
