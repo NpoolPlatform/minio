@@ -56,12 +56,14 @@ pipeline {
       }
       steps {
         sh(returnStdout: true, script: '''
+          set +e
           while true; do
             docker push entropypool/minio:RELEASE.2021-02-14T04-01-33Z
             if [ $? -eq 0 ]; then
               break
             fi
           done
+          set -e
         '''.stripIndent())
       }
     }
