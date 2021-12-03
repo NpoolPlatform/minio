@@ -75,9 +75,12 @@ pipeline {
             tag_version="0.1.0"
           fi
           git tag -a $tag_version -m "add tag $tag_version for test"
-          git push --tags
           set -e
         '''.stripIndent())
+
+        withCredentials([gitUsernamePassword(credentialsId: 'KK-github-key', gitToolName: 'git-tool')]) {
+          sh 'git push --tag'
+        }
 
         sh 'mkdir -p .docker-tmp; cp /usr/bin/consul .docker-tmp'
         sh(returnStdout: true, script: '''
