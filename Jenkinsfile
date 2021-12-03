@@ -60,7 +60,7 @@ pipeline {
         sh(returnStdout: true, script: '''
           set +e
           tag_rev_list=`git rev-list --tags --max-count=1`
-          if [ 0 -eq $rc ]; then
+          if [ 0 -eq $? ]; then
             cur_tag=`git describe --tags $tag_rev_list`
             large_version=`echo $cur_tag | awk '{ print $1 }'`
             middle_version=`echo $cur_tag | awk '{ print $2 }'`
