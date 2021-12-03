@@ -71,10 +71,10 @@ pipeline {
             flag=`expr $small_version % 2`
             [ 0 -eq $flag ] && small_version=`expr $small_version + 1`
             tag_version="$large_version.$middle_version.$small_version"
-            git tag -a $tag_version -m "add tag $tag_version for test"
           else
             tag_version="0.1.0"
           fi
+          git tag -a $tag_version -m "add tag $tag_version for test"
           git push --tags
           set -e
         '''.stripIndent())
@@ -87,6 +87,7 @@ pipeline {
             docker rmi $image
           done
           set -e
+          tag_version=`git describe --tags $tag_rev_list`
           docker build -t entropypool/minio:$tag_version .
         '''.stripIndent())
       }
