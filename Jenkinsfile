@@ -34,19 +34,61 @@ pipeline {
       }
     }
 
-    stage('Build minio image') {
+    stage('Build minio image for developement') {
       when {
         expression { BUILD_TARGET == 'true' }
+        expression { TARGET_ENV == 'development' }
       }
       steps {
         sh 'mkdir -p .docker-tmp; cp /usr/bin/consul .docker-tmp'
         sh(returnStdout: true, script: '''
-          images=`docker images | grep entropypool | grep minio | awk '{ print $3 }'`
+          images=`docker images | grep entropypool | grep minio | awk '{ print $3 }' | grep RELEASE.2021-02-14T04-01-33Z`
           for image in $images; do
             docker rmi $image
           done
         '''.stripIndent())
         sh 'docker build -t entropypool/minio:RELEASE.2021-02-14T04-01-33Z .'
+      }
+    }
+
+    stage('Build minio image for testing') {
+      when {
+        expression { BUILD_TARGET == 'true' }
+        expression { TARGET_ENV == 'testing' }
+      }
+      steps {
+        sh(returnStdout: true, script: '''
+          set +e
+          tag_rev_list=`git rev-list --tags --max-count=1`
+          if [ 0 -eq $rc ]; then
+            cur_tag=`git describe --tags $tag_rev_list`
+            large_version=`echo $cur_tag | awk '{ print $1 }'`
+            middle_version=`echo $cur_tag | awk '{ print $2 }'`
+            small_version=`echo $cur_tag | awk '{ print $3 }'`
+            [ 1 -eq $VERSION_INDEX ] && large_version=`expr $large_version + 1`
+            [ 2 -eq $VERSION_INDEX ] && middle_version=`expr $midlle_version + 1`
+            [ 3 -eq $VERSION_INDEX ] && small_version=`expr $small_version + 1`
+            flag=`expr $small_version % 2`
+            [ 0 -eq $flag ] && small_version=`expr $small_version + 1`
+            tag_version="$large_version.$middle_version.$small_version"
+            git tag -a $tag_version -m "add tag $tag_version for test"
+          else
+            tag_version="0.1.0"
+          fi
+          git push --tags
+          set -e
+        '''.stripIndent())
+
+        sh 'mkdir -p .docker-tmp; cp /usr/bin/consul .docker-tmp'
+        sh(returnStdout: true, script: '''
+          set +e
+          images=`docker images | grep entropypool | grep minio | awk '{ print $3 }' | grep -v latest`
+          for image in $images; do
+            docker rmi $image
+          done
+          set -e
+          docker build -t entropypool/minio:$tag_version .
+        '''.stripIndent())
       }
     }
 
