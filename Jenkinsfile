@@ -90,6 +90,7 @@ pipeline {
             docker rmi $image
           done
           set -e
+          tag_rev_list=`git rev-list --tags --max-count=1`
           tag_version=`git describe --tags $tag_rev_list`
           docker build -t entropypool/minio:$tag_version .
         '''.stripIndent())
