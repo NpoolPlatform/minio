@@ -62,9 +62,9 @@ pipeline {
           tag_rev_list=`git rev-list --tags --max-count=1`
           if [ 0 -eq $? ]; then
             cur_tag=`git describe --tags $tag_rev_list`
-            large_version=`echo $cur_tag | awk '{ print $1 }'`
-            middle_version=`echo $cur_tag | awk '{ print $2 }'`
-            small_version=`echo $cur_tag | awk '{ print $3 }'`
+            large_version=`echo $cur_tag | awk -F '.' '{ print $1 }'`
+            middle_version=`echo $cur_tag | awk -F '.' '{ print $2 }'`
+            small_version=`echo $cur_tag | awk -F '.' '{ print $3 }'`
             [ 1 -eq $VERSION_INDEX ] && large_version=`expr $large_version + 1`
             [ 2 -eq $VERSION_INDEX ] && middle_version=`expr $midlle_version + 1`
             [ 3 -eq $VERSION_INDEX ] && small_version=`expr $small_version + 1`
