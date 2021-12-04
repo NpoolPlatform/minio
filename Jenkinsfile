@@ -69,7 +69,7 @@ pipeline {
             if [ "$TAG_TYPE" == "major" ]; then
               major_version=`expr $major_version + 1`
               tag_version="$major_version.$minor_version.$mininus_version"
-            elif [ "$TAG_TYPE" == "major" ]; then
+            elif [ "$TAG_TYPE" == "minor" ]; then
               minor_version=`expr $minor_version + 1`
               tag_version="$major_version.$minor_version.$mininus_version"
             elif [ "$TAG_TYPE" == "mininus" ]; then
