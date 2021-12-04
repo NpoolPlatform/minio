@@ -37,43 +37,48 @@ pipeline {
     stage('Build minio image for developement') {
       when {
         expression { BUILD_TARGET == 'true' }
-        expression { TARGET_ENV == 'development' }
       }
       steps {
         sh 'mkdir -p .docker-tmp; cp /usr/bin/consul .docker-tmp'
         sh(returnStdout: true, script: '''
-          images=`docker images | grep entropypool | grep minio | awk '{ print $3 }' | grep RELEASE.2021-02-14T04-01-33Z`
+          images=`docker images | grep entropypool | grep minio | awk '{ print $3 }' | grep latest`
           for image in $images; do
             docker rmi $image
           done
         '''.stripIndent())
-        sh 'docker build -t entropypool/minio:RELEASE.2021-02-14T04-01-33Z .'
+        sh 'docker build -t entropypool/minio:latest .'
       }
     }
 
-    stage('Build minio image for testing') {
+    stage('Tag minio') {
       when {
-        expression { BUILD_TARGET == 'true' }
-        expression { TARGET_ENV == 'testing' }
+        expression { TAG_TYPE != null }
       }
       steps {
         sh(returnStdout: true, script: '''
+          tag_version="0.1.0"
           set +e
           tag_rev_list=`git rev-list --tags --max-count=1`
           if [ 0 -eq $? ]; then
             cur_tag=`git describe --tags $tag_rev_list`
-            large_version=`echo $cur_tag | awk -F '.' '{ print $1 }'`
-            middle_version=`echo $cur_tag | awk -F '.' '{ print $2 }'`
-            small_version=`echo $cur_tag | awk -F '.' '{ print $3 }'`
-            [ 1 -eq $VERSION_INDEX ] && large_version=`expr $large_version + 1`
-            [ 2 -eq $VERSION_INDEX ] && middle_version=`expr $midlle_version + 1`
-            [ 3 -eq $VERSION_INDEX ] && small_version=`expr $small_version + 1`
-            flag=`expr $small_version % 2`
-            [ 0 -eq $flag ] && small_version=`expr $small_version + 1`
-            tag_version="$large_version.$middle_version.$small_version"
-          else
-            tag_version="0.1.0"
+            major_version=`echo $cur_tag | awk -F '.' '{ print $1 }'`
+            minor_version=`echo $cur_tag | awk -F '.' '{ print $2 }'`
+            mininus_version=`echo $cur_tag | awk -F '.' '{ print $3 }'`
+            if [ "$TAG_TYPE" == "major" ]; then
+              major_version=`expr $major_version + 1`
+              tag_version="$major_version.$minor_version.$mininus_version"
+            elif [ "$TAG_TYPE" == "major" ]; then
+              minor_version=`expr $minor_version + 1`
+              tag_version="$major_version.$minor_version.$mininus_version"
+            elif [ "$TAG_TYPE" == "mininus" ]; then
+              mininus_version=`expr $mininus_version + 1`
+              flag=`expr $mininus_version % 2`
+              [[ 0 -eq $flag && $TARGET_ENV ~= testing ]] && mininus_version=`expr $mininus_version + 1`
+              [[ ! 0 -eq $flag && $TARGET_ENV ~= production ]] && mininus_version=`expr $mininus_version + 1`
+              tag_version="$major_version.$minor_version.$mininus_version"
+            fi
           fi
+
           git tag -a $tag_version -m "add tag $tag_version for test"
           set -e
         '''.stripIndent())
@@ -82,6 +87,15 @@ pipeline {
           sh 'git push --tag'
         }
 
+      }
+    }
+
+    stage('Build minio image for testing or production') {
+      when {
+        expression { BUILD_TARGET == 'true' }
+        expression { TAG_TYPE != null }
+      }
+      steps {
         sh 'mkdir -p .docker-tmp; cp /usr/bin/consul .docker-tmp'
         sh(returnStdout: true, script: '''
           set +e
