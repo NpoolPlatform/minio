@@ -103,7 +103,7 @@ pipeline {
           set +e
           images=`docker images | grep entropypool | grep minio | awk '{ print $3 }' | grep -v latest`
           for image in $images; do
-            docker rmi $image
+            docker rmi $image -f
           done
           set -e
           tag_rev_list=`git rev-list --tags --max-count=1`
