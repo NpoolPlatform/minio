@@ -80,7 +80,7 @@ pipeline {
               tag_version="$major_version.$minor_version.$mininus_version"
             fi
           fi
-          [ $RELEASE_ENV =~ production ] && git checkout refs/tags/$cur_tag
+          [[ $RELEASE_ENV =~ production ]] && git checkout refs/tags/$cur_tag
           git tag -a $tag_version -m "add tag $tag_version for test"
           set -e
         '''.stripIndent())
