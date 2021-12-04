@@ -75,12 +75,12 @@ pipeline {
             elif [ "$TAG_TYPE" == "mininus" ]; then
               mininus_version=`expr $mininus_version + 1`
               flag=`expr $mininus_version % 2`
-              [[ 0 -eq $flag && $TARGET_ENV =~ testing ]] && mininus_version=`expr $mininus_version + 1`
-              [[ ! 0 -eq $flag && $TARGET_ENV =~ production ]] && mininus_version=`expr $mininus_version + 1`
+              [[ 0 -eq $flag && $RELEASE_ENV =~ testing ]] && mininus_version=`expr $mininus_version + 1`
+              [[ ! 0 -eq $flag && $RELEASE_ENV =~ production ]] && mininus_version=`expr $mininus_version + 1`
               tag_version="$major_version.$minor_version.$mininus_version"
             fi
           fi
-          [ $TARGET_ENV =~ production ] && git checkout refs/tags/$cur_tag
+          [ $RELEASE_ENV =~ production ] && git checkout refs/tags/$cur_tag
           git tag -a $tag_version -m "add tag $tag_version for test"
           set -e
         '''.stripIndent())
