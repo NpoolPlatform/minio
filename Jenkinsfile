@@ -75,8 +75,8 @@ pipeline {
             elif [ "$TAG_TYPE" == "mininus" ]; then
               mininus_version=`expr $mininus_version + 1`
               flag=`expr $mininus_version % 2`
-              [[ 0 -eq $flag && $TARGET_ENV ~= testing ]] && mininus_version=`expr $mininus_version + 1`
-              [[ ! 0 -eq $flag && $TARGET_ENV ~= production ]] && mininus_version=`expr $mininus_version + 1`
+              [[ 0 -eq $flag && $TARGET_ENV =~ testing ]] && mininus_version=`expr $mininus_version + 1`
+              [[ ! 0 -eq $flag && $TARGET_ENV =~ production ]] && mininus_version=`expr $mininus_version + 1`
               tag_version="$major_version.$minor_version.$mininus_version"
             fi
           fi
