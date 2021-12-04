@@ -80,7 +80,7 @@ pipeline {
               tag_version="$major_version.$minor_version.$mininus_version"
             fi
           fi
-
+          [ $TARGET_ENV =~ production ] && git checkout refs/tags/$cur_tag
           git tag -a $tag_version -m "add tag $tag_version for test"
           set -e
         '''.stripIndent())
@@ -108,6 +108,7 @@ pipeline {
           set -e
           tag_rev_list=`git rev-list --tags --max-count=1`
           tag_version=`git describe --tags $tag_rev_list`
+          git checkout refs/tags/$tag_version
           docker build -t entropypool/minio:$tag_version .
         '''.stripIndent())
       }
