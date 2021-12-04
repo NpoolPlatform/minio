@@ -98,7 +98,6 @@ pipeline {
         expression { TAG_TYPE != null }
       }
       steps {
-        sh 'mkdir -p .docker-tmp; cp /usr/bin/consul .docker-tmp'
         sh(returnStdout: true, script: '''
           set +e
           images=`docker images | grep entropypool | grep minio | awk '{ print $3 }' | grep -v latest`
@@ -109,6 +108,8 @@ pipeline {
           tag_rev_list=`git rev-list --tags --max-count=1`
           tag_version=`git describe --tags $tag_rev_list`
           git checkout refs/tags/$tag_version
+
+          mkdir -p .docker-tmp; cp /usr/bin/consul .docker-tmp
           docker build -t entropypool/minio:$tag_version .
         '''.stripIndent())
       }
