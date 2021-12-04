@@ -41,10 +41,12 @@ pipeline {
       steps {
         sh 'mkdir -p .docker-tmp; cp /usr/bin/consul .docker-tmp'
         sh(returnStdout: true, script: '''
+          set +e
           images=`docker images | grep entropypool | grep minio | awk '{ print $3 }' | grep latest`
           for image in $images; do
             docker rmi $image
           done
+          set -e
         '''.stripIndent())
         sh 'docker build -t entropypool/minio:latest .'
       }
