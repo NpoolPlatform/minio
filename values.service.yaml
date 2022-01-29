@@ -1,7 +1,7 @@
 replicaCount: 1
 fullNameOverride: "minio"
 image:
-  repository: entropypool/minio
+  repository: uhub.service.ucloud.cn/entropypool/minio
   tag: RELEASE.2021-02-14T04-01-33Z
   pullPolicy: IfNotPresent
 accessKey: root

@@ -48,7 +48,7 @@ pipeline {
           done
           set -e
         '''.stripIndent())
-        sh 'docker build -t entropypool/minio:RELEASE.2021-02-14T04-01-33Z .'
+        sh 'docker build -t uhub.service.ucloud.cn/entropypool/minio:RELEASE.2021-02-14T04-01-33Z .'
       }
     }
 
@@ -60,7 +60,7 @@ pipeline {
         sh(returnStdout: true, script: '''
           set +e
           while true; do
-            docker push entropypool/minio:RELEASE.2021-02-14T04-01-33Z
+            docker push uhub.service.ucloud.cn/entropypool/minio:RELEASE.2021-02-14T04-01-33Z
             if [ $? -eq 0 ]; then
               break
             fi
