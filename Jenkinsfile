@@ -75,8 +75,8 @@ pipeline {
         expression { DEPLOY_TARGET == 'true' }
       }
       steps {
-        sh 'helm repo add minio https://helm.min.io/'
-        sh 'helm upgrade minio --namespace kube-system -f values.service.yaml ./minio || helm install minio --namespace kube-system -f values.service.yaml ./minio'
+        sh 'helm repo add npool-minio https://helm.min.io/'
+        sh 'helm upgrade npool-minio --namespace kube-system -f values.service.yaml ./minio || helm install npool-minio --namespace kube-system -f values.service.yaml ./minio'
       }
     }
 
