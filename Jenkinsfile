@@ -75,7 +75,9 @@ pipeline {
         expression { DEPLOY_TARGET == 'true' }
       }
       steps {
-        sh 'helm upgrade minio --namespace kube-system -f values.service.yaml ./minio || helm install minio --namespace kube-system -f values.service.yaml ./minio'
+        sh 'MINIO_PASSWORD=$MINIO_PASSWORD envsubst < values.service.yaml > .values.service.yaml'
+        sh 'helm upgrade minio --namespace kube-system -f .values.service.yaml ./minio || helm install minio --namespace kube-system -f .values.service.yaml ./minio'
+        sh 'rm -rf .values.service.yaml'
       }
     }
 
